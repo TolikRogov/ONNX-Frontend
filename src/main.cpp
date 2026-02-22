@@ -1,26 +1,30 @@
-#include <__ostream/basic_ostream.h>
-#include <_stdlib.h>
-#include <variant>
+#include <stdlib.h>
 #include <iostream>
-#include <stdint.h>
+#include <exception>
+#include <optional>
 #include <string>
-#include "ONNX.hpp"
 #include "onnx_utils.hpp"
-
-inline void protocDecode(const char* onnx_path) {
-	std::string path(onnx_path);
-	std::string command = COMMAND_START + path + COMMAND_END;
-	system(command.c_str());
-}
+#include "ONNX.hpp"
 
 int main(int argc, char** argv) {
 
 	if (argc < 2) {
-		std::cout << "Error: need path to onnx file!" << std::endl;
-		exit(1);
+		std::cerr << "Need argument (path to onnx file) to run" << std::endl;
+		exit(EXIT_FAILURE);
 	}
 
-	protocDecode(argv[1]);
+	try {
+		protocDecode(argv[1]);
+		onnx::ModelProto model(TEMP_FILE);
+		model.fill();
+		std::cout << model.ir_version << std::endl;
+		std::cout << model.producer_name.value_or("No name") << std::endl;
+		std::cout << model.producer_version.value_or("No version") << std::endl;
+	}
+	catch (const std::exception& err) {
+		std::cerr << err.what() << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }

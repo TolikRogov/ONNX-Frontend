@@ -4,8 +4,17 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <unordered_map>
+#include <optional>
+#include <memory>
+#include "onnx_utils.hpp"
+
+#define DEFAULT_OPSET_IMPORT_DOMAIN "ai.onnx"
 
 namespace onnx {
+
+	struct HeadProtocCmd;
+	typedef std::vector<HeadProtocCmd> vec_cmd;
 
 	enum class TensorDataType {
 		UNDEFINED,
@@ -63,11 +72,6 @@ namespace onnx {
 		std::string doc_string;
 	};
 
-	struct OperatorSetIdProto {
-		std::string domain;
-		int64_t version = 0;
-	};
-
 	struct AttributeProto;
 
 	struct TensorProto {
@@ -121,24 +125,15 @@ namespace onnx {
 		std::vector<std::unique_ptr<GraphProto>> graphs;
 	};
 
-	struct ModelProto {
-		int64_t ir_version = 0;
-		std::vector<OperatorSetIdProto> opset_import;
-
-		std::string producer_name;
-		std::string producer_version;
-		std::string domain;
-		int64_t model_version = 0;
-		std::string doc_string;
-
-		std::unique_ptr<GraphProto> graph;
-		std::unordered_map<std::string, std::string> metadata_props;
-	};
-
 	struct OperatorProto {
 		std::string op_type;
 		int64_t since_version = 0;
 		std::string doc_string;
+	};
+
+	struct OperatorSetIdProto {
+		std::string domain = DEFAULT_OPSET_IMPORT_DOMAIN;
+		int64_t version = 0;
 	};
 
 	struct OperatorSetProto {
@@ -151,5 +146,40 @@ namespace onnx {
 		std::string doc_string;
 		std::vector<OperatorProto> operator_;
 	};
+
+	class ModelProto {
+		std::vector<std::string> protoc_buffer;
+		OperatorSetProto opset;
+		std::unique_ptr<GraphProto> graph;
+
+		public:
+			int64_t ir_version = 0;
+			std::optional<std::string> producer_name;
+			std::optional<std::string> producer_version;
+			OperatorSetIdProto opset_import;
+			std::unordered_map<std::string, std::string> metadata_props;
+
+			ModelProto(const std::string& protoc_path) {
+				protoc_buffer = readFile(protoc_path);
+			}
+
+			bool is_empty() {
+				return protoc_buffer.empty();
+			}
+
+			bool is_filled() {
+				return (graph != nullptr);
+			}
+
+			void fill();
+	};
+
+	struct HeadProtocCmd {
+		const std::string cmd_name;
+		void* cmd_var;
+		head_func_t cmd_func;
+	};
+
+	vec_cmd::iterator findCmdByName(vec_cmd& cmds, const std::string& cmd_name);
 
 }; //namespace onnx

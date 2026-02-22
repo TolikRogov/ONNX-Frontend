@@ -19,9 +19,15 @@ find_program(IWYU_PATH NAMES include-what-you-use iwyu)
 if(IWYU_PATH)
     message(STATUS "Found include-what-you-use: ${IWYU_PATH}")
 
-    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU_PATH}"
+    set(IWYU_COMMAND "${IWYU_PATH}"
         "-Xiwyu;--verbose=1;"
         "-Xiwyu;--comment_style=long;"
+        "-isysroot;${CMAKE_OSX_SYSROOT};"
+        "-Xiwyu;--mapping_file=$ENV{HOME}/iwyu/src/libcxx.imp"
+    )
+
+    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE
+        "$<$<CONFIG:Debug>:${IWYU_COMMAND}>"
     )
 else()
     message(STATUS "include-what-you-use not found, continuing without it")
@@ -29,14 +35,6 @@ endif()
 
 file(GLOB SOURCES "src/*.cpp" "src/*.c")
 file(GLOB HEADERS "include/*.hpp" "include/*.h")
-
-# foreach(src_file ${SOURCES})
-#     get_filename_component(target_name ${src_file} NAME_WE)
-#     add_executable(${target_name} ${src_file})
-#     target_compile_options(${target_name} PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS}>)
-#     target_link_options(${target_name} PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS}>)
-#     target_include_directories(${target_name} PRIVATE include)
-# endforeach()
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
