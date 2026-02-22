@@ -1,32 +1,31 @@
 #include <vector>
 #include <string>
-#include <iostream>
+#include <unordered_map>
 #include "ONNX.hpp"
-#include "onnx_utils.hpp"
 
-onnx::vec_cmd::iterator onnx::findCmdByName(onnx::vec_cmd& cmds, const std::string& cmd_name) {
-	for (onnx::vec_cmd::iterator iter = cmds.begin(); iter < cmds.end(); iter++) {
-		if ((*iter).cmd_name == cmd_name)
-			return iter;
-	}
-	return onnx::vec_cmd::iterator();
-}
+#define DEF_CMD_(cmd, var, func)									\
+	cmdset[cmd] = {.cmd_var = (void*)&(var), .cmd_func = (func)};	\
 
 void onnx::ModelProto::fill() {
 
-	HeadProtocCmd IRversion 		= 	{.cmd_name = "ir_version:", 		.cmd_var = (void*)&ir_version, 			.cmd_func = sToi};
-	HeadProtocCmd ProducerName 		= 	{.cmd_name = "producer_name:", 		.cmd_var = (void*)&producer_name,		.cmd_func = sToopts};
-	HeadProtocCmd ProducerVersion 	= 	{.cmd_name = "producer_version:", 	.cmd_var = (void*)&producer_version,	.cmd_func = sToopts};
-
-	vec_cmd header_cmd = {IRversion, ProducerName, ProducerVersion};
+	#include "commands"
 
 	std::vector<std::string>::iterator iter = protoc_buffer.begin();
 	for ( ; iter != protoc_buffer.end(); iter++) {
-
-		vec_cmd::iterator header_cmd_iter = findCmdByName(header_cmd, *iter);
-
-		if (!(header_cmd_iter == vec_cmd::iterator()))
-			(*header_cmd_iter).cmd_func(*(++iter), (*header_cmd_iter).cmd_var);
+		if (cmdset.contains(*iter)) {
+			CommandProto& cur_cmd = cmdset[*iter];
+			cur_cmd.cmd_func(++iter, cur_cmd.cmd_var);
+		}
 	}
 
+}
+
+void onnx::sToi(std::vector<std::string>::iterator iter, void* var) {
+	int* variable = (int*)var;
+	*variable = std::stoi(*iter);
+}
+
+void onnx::sToOpts(std::vector<std::string>::iterator iter, void* var) {
+	std::optional<std::string>* variable = (std::optional<std::string>*)var;
+	*variable = *iter;
 }

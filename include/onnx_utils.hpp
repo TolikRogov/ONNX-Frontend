@@ -12,10 +12,5 @@
 #define PROTOC_CMD_START "mkdir -p " TEMP_DIR " ; protoc --decode=onnx.ModelProto onnx/onnx.proto3 < "
 #define PROTOC_CMD_END " > " TEMP_FILE
 
-typedef void (*head_func_t) (std::string&, void*);
-
-void sToi(std::string& str, void* var);
-void sToopts(std::string& str, void* var);
-
 void protocDecode(const std::string& onnx_path);
 std::vector<std::string> readFile(const std::string& file_path);

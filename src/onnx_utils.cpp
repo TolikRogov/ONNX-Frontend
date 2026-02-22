@@ -3,19 +3,8 @@
 #include <fstream>
 #include <iterator>
 #include <stdexcept>
-#include <optional>
 #include <filesystem>
 #include "onnx_utils.hpp"
-
-void sToi(std::string& str, void* var) {
-	int* variable = (int*)var;
-	*variable = std::stoi(str);
-}
-
-void sToopts(std::string& str, void* var) {
-	std::optional<std::string>* variable = (std::optional<std::string>*)var;
-	*variable = str;
-}
 
 void protocDecode(const std::string& onnx_path) {
 	if (!std::filesystem::exists(onnx_path))

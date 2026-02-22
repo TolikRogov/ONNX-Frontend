@@ -1,0 +1,3 @@
+DEF_CMD_("ir_version:", ir_version, sToi)
+DEF_CMD_("producer_name:", producer_name, sToOpts)
+DEF_CMD_("producer_version:", producer_version, sToOpts)

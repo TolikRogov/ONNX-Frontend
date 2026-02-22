@@ -13,8 +13,7 @@
 
 namespace onnx {
 
-	struct HeadProtocCmd;
-	typedef std::vector<HeadProtocCmd> vec_cmd;
+	typedef void (*cmd_func_t) (std::vector<std::string>::iterator, void*);
 
 	enum class TensorDataType {
 		UNDEFINED,
@@ -147,10 +146,16 @@ namespace onnx {
 		std::vector<OperatorProto> operator_;
 	};
 
+	struct CommandProto {
+		void* cmd_var;
+		cmd_func_t cmd_func;
+	};
+
 	class ModelProto {
 		std::vector<std::string> protoc_buffer;
-		OperatorSetProto opset;
+		std::unordered_map<std::string, CommandProto> cmdset;
 		std::unique_ptr<GraphProto> graph;
+		OperatorSetProto opset;
 
 		public:
 			int64_t ir_version = 0;
@@ -174,12 +179,7 @@ namespace onnx {
 			void fill();
 	};
 
-	struct HeadProtocCmd {
-		const std::string cmd_name;
-		void* cmd_var;
-		head_func_t cmd_func;
-	};
-
-	vec_cmd::iterator findCmdByName(vec_cmd& cmds, const std::string& cmd_name);
+	void sToi(std::vector<std::string>::iterator, void*);
+	void sToOpts(std::vector<std::string>::iterator, void*);
 
 }; //namespace onnx
