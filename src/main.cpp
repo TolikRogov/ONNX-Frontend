@@ -1,14 +1,26 @@
+#include <__ostream/basic_ostream.h>
+#include <_stdlib.h>
 #include <variant>
 #include <iostream>
-#include <__ostream/basic_ostream.h>
 #include <stdint.h>
+#include <string>
 #include "ONNX.hpp"
+#include "onnx_utils.hpp"
 
-int main() {
+inline void protocDecode(const char* onnx_path) {
+	std::string path(onnx_path);
+	std::string command = COMMAND_START + path + COMMAND_END;
+	system(command.c_str());
+}
 
-	onnx::Dimension dim = {};
-	dim.value = 64;
-	std::cout << std::get<int64_t>(dim.value) << std::endl;
+int main(int argc, char** argv) {
+
+	if (argc < 2) {
+		std::cout << "Error: need path to onnx file!" << std::endl;
+		exit(1);
+	}
+
+	protocDecode(argv[1]);
 
 	return 0;
 }

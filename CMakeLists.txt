@@ -21,7 +21,7 @@ if(IWYU_PATH)
 
     set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU_PATH}"
         "-Xiwyu;--verbose=1;"
-        "-Xiwyu;--no_comments;"
+        "-Xiwyu;--comment_style=long;"
     )
 else()
     message(STATUS "include-what-you-use not found, continuing without it")
