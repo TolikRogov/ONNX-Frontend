@@ -1,3 +1,95 @@
-DEF_CMD_("ir_version:", ir_version, sToi)
-DEF_CMD_("producer_name:", producer_name, sToOpts)
-DEF_CMD_("producer_version:", producer_version, sToOpts)
+DEF_CMD_(
+	#ifdef CMD_SET_FILL
+		DEF_CMD_VAL_("ir_version:", ir_version, sToi)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_FILL
+		DEF_CMD_VAL_("producer_name:", producer_name, sToOpts)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_FILL
+		DEF_CMD_VAL_("producer_version:", producer_version, sToOpts)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_FILL
+		DEF_CMD_VAL_("graph", graph, setGraph)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_FILL
+		DEF_CMD_VAL_("opset_import", opset_import, setOpsetImport)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_FILL
+		DEF_CMD_VAL_("metadata_props", metadata_props, setMetadataProps)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_OPSET
+		DEF_CMD_VAL_("version:", opset_import_p->version, sToi)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_OPSET
+		DEF_CMD_VAL_("domain:", opset_import_p->domain, sToOpts)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_GRAPH
+		DEF_CMD_VAL_("node", (*graph_p)->node, addNode)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_NODE
+		DEF_CMD_VAL_("input:", node.input, addNodePut)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_NODE
+		DEF_CMD_VAL_("output:", node.output, addNodePut)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_NODE
+		DEF_CMD_VAL_("name:", node.name, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_NODE
+		DEF_CMD_VAL_("op_type:", node.op_type, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_NODE
+		DEF_CMD_VAL_("attribute", node.attribute, addAttribute)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_ATTRIBUTE
+		DEF_CMD_VAL_("name:", attribute.name, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_ATTRIBUTE
+		DEF_CMD_VAL_("ints:", attribute.ints, addAttributeInts)
+	#endif
+)

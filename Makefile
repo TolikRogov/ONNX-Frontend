@@ -18,7 +18,7 @@ ifneq (,$(wildcard ./.env))
 endif
 
 # Project configurations
-PROJECT_NAME := MyProject
+PROJECT_NAME := ONNXFrontend
 BUILD_DIR := build
 SOURCE_DIR := src
 DEBUG_BUILD_DIR := $(BUILD_DIR)/Debug

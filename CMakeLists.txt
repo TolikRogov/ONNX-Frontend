@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
-project(MyProject LANGUAGES CXX)
+project(ONNXFrontend LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set (DEBUG_FLAGS -std=c++20 -ggdb3 -fsanitize=address,alignment -Wall -Wextra -Weffc++ -Wc++14-compat
+set (DEBUG_FLAGS -std=c++20 -DDEBUG -ggdb3 -fsanitize=address,alignment -Wall -Wextra -Weffc++ -Wc++14-compat
 				 -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion -Wctor-dtor-privacy
 				 -Wempty-body -Wfloat-equal -Wno-format-nonliteral -Wformat-security -Wformat=2 -Winline
 				 -Wnon-virtual-dtor -Woverloaded-virtual -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls

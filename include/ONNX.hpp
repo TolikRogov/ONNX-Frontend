@@ -6,14 +6,24 @@
 #include <vector>
 #include <unordered_map>
 #include <optional>
+#include <fstream>
 #include <memory>
 #include "onnx_utils.hpp"
 
 #define DEFAULT_OPSET_IMPORT_DOMAIN "ai.onnx"
 
-namespace onnx {
+typedef std::vector<std::string>::iterator vec_str_iter_t;
+typedef void (*cmd_func_t) (vec_str_iter_t&, void*);
 
-	typedef void (*cmd_func_t) (std::vector<std::string>::iterator, void*);
+struct CommandProto {
+	void* cmd_var;
+	cmd_func_t cmd_func;
+};
+
+typedef std::unordered_map<std::string, CommandProto> map_cmd_set_t;
+typedef std::unordered_map<std::string, std::string> metadata_t;
+
+namespace onnx {
 
 	enum class TensorDataType {
 		UNDEFINED,
@@ -38,12 +48,7 @@ namespace onnx {
 		INT,
 		STRING,
 		FLOATS,
-		INTS,
-		STRINGS,				//|
-		TENSOR,					//|
-		GRAPH,					//| unsupported set of attribute types
-		TENSORS,				//|
-		GRAPHS,					//|
+		INTS
 	};
 
 	struct Dimension {//dim_value	//dim_param
@@ -74,13 +79,11 @@ namespace onnx {
 	struct AttributeProto;
 
 	struct TensorProto {
-		std::vector<int64_t> dims;
-		TensorDataType data_type = TensorDataType::UNDEFINED;
-
-		std::vector<uint8_t> raw_data;
-
 		std::string name;
 		std::string doc_string;
+		std::vector<int64_t> dims;
+		TensorDataType data_type = TensorDataType::UNDEFINED;
+		std::vector<uint8_t> raw_data;
 	};
 
 	struct NodeProto {
@@ -90,9 +93,7 @@ namespace onnx {
 		std::vector<std::string> input;
 		std::vector<std::string> output;
 		std::vector<AttributeProto> attribute;
-		std::string doc_string;
-		std::string overload;
-		std::unordered_map<std::string, std::string> metadata_props;
+		metadata_t metadata_props;
 	};
 
 	struct GraphProto {
@@ -102,8 +103,7 @@ namespace onnx {
 		std::vector<ValueInfoProto> input;
 		std::vector<ValueInfoProto> output;
 		std::vector<ValueInfoProto> value_info;
-		std::string doc_string;
-		std::unordered_map<std::string, std::string> metadata_props;
+		metadata_t metadata_props;
 	};
 
 	struct AttributeProto {
@@ -114,14 +114,9 @@ namespace onnx {
 		float f = 0.0f;
 		int64_t i = 0;
 		std::string s;
-		std::unique_ptr<TensorProto> t;
-		std::unique_ptr<GraphProto> g;
 
 		std::vector<float> floats;
 		std::vector<int64_t> ints;
-		std::vector<std::string> strings;
-		std::vector<std::unique_ptr<TensorProto>> tensors;
-		std::vector<std::unique_ptr<GraphProto>> graphs;
 	};
 
 	struct OperatorProto {
@@ -131,7 +126,7 @@ namespace onnx {
 	};
 
 	struct OperatorSetIdProto {
-		std::string domain = DEFAULT_OPSET_IMPORT_DOMAIN;
+		std::optional<std::string> domain = DEFAULT_OPSET_IMPORT_DOMAIN;
 		int64_t version = 0;
 	};
 
@@ -146,40 +141,33 @@ namespace onnx {
 		std::vector<OperatorProto> operator_;
 	};
 
-	struct CommandProto {
-		void* cmd_var;
-		cmd_func_t cmd_func;
-	};
-
 	class ModelProto {
+		int64_t ir_version = 0;
+		std::optional<std::string> producer_name;
+		std::optional<std::string> producer_version;
+		OperatorSetIdProto opset_import;
+		metadata_t metadata_props;
+
 		std::vector<std::string> protoc_buffer;
-		std::unordered_map<std::string, CommandProto> cmdset;
 		std::unique_ptr<GraphProto> graph;
 		OperatorSetProto opset;
 
 		public:
-			int64_t ir_version = 0;
-			std::optional<std::string> producer_name;
-			std::optional<std::string> producer_version;
-			OperatorSetIdProto opset_import;
-			std::unordered_map<std::string, std::string> metadata_props;
-
 			ModelProto(const std::string& protoc_path) {
 				protoc_buffer = readFile(protoc_path);
+
+				#ifdef DEBUG
+					std::fstream outFile(TEMP_FILE);
+					for (auto iter = protoc_buffer.begin(); iter != protoc_buffer.end(); iter++)
+						outFile << (*iter).c_str() << std::endl;
+				#endif
 			}
 
-			bool is_empty() {
-				return protoc_buffer.empty();
-			}
-
-			bool is_filled() {
-				return (graph != nullptr);
-			}
+			bool is_empty() { return protoc_buffer.empty(); }
+			bool is_filled() { return (graph != nullptr); }
 
 			void fill();
+			void print_info();
 	};
-
-	void sToi(std::vector<std::string>::iterator, void*);
-	void sToOpts(std::vector<std::string>::iterator, void*);
 
 }; //namespace onnx

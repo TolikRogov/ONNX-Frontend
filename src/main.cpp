@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <exception>
-#include <optional>
-#include <string>
 #include "onnx_utils.hpp"
 #include "ONNX.hpp"
 
@@ -17,9 +15,7 @@ int main(int argc, char** argv) {
 		protocDecode(argv[1]);
 		onnx::ModelProto model(TEMP_FILE);
 		model.fill();
-		std::cout << model.ir_version << std::endl;
-		std::cout << model.producer_name.value_or("No name") << std::endl;
-		std::cout << model.producer_version.value_or("No version") << std::endl;
+		model.print_info();
 	}
 	catch (const std::exception& err) {
 		std::cerr << err.what() << std::endl;
