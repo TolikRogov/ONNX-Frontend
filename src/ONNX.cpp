@@ -25,9 +25,15 @@ static void addNodePut(vec_str_iter_t&, void*);
 
 static void addAttribute(vec_str_iter_t&, void*);
 static void addAttributeInts(vec_str_iter_t&, void*);
+static void addAttributeType(vec_str_iter_t&, void*);
+
+static void addInitializer(vec_str_iter_t&, void*);
+static void addInitializerDims(vec_str_iter_t&, void*);
+static void addTensorType(vec_str_iter_t&, void*);
 
 static void setMetadataProps(vec_str_iter_t&, void*);
 
+static void sTof(vec_str_iter_t&, void*);
 static void sTos(vec_str_iter_t&, void*);
 static void sToi(vec_str_iter_t&, void*);
 static void sToOpts(vec_str_iter_t&, void*);
@@ -131,6 +137,7 @@ static void setOpsetImport(vec_str_iter_t& iter, void* var) {
 static void setGraph(vec_str_iter_t& iter, void* var) {
 
 	std::unique_ptr<onnx::GraphProto>* graph_p = (std::unique_ptr<onnx::GraphProto>*)var;
+    (*graph_p) = std::make_unique<onnx::GraphProto>();
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_GRAPH
@@ -185,6 +192,55 @@ static void addAttribute(vec_str_iter_t& iter, void* var) {
 	(*attribute_p).push_back(std::move(attribute));
 }
 
+static void addAttributeType(vec_str_iter_t& iter, void* var) {
+
+	onnx::AttributeType* type_p = (onnx::AttributeType*)var;
+	static std::unordered_map<std::string, onnx::AttributeType> AtTypeMap = {
+		{"FLOAT", 	onnx::AttributeType::FLOAT},
+		{"INT", 	onnx::AttributeType::INT},
+		{"STRING", 	onnx::AttributeType::STRING},
+		{"FLOATS", 	onnx::AttributeType::FLOATS},
+		{"INTS", 	onnx::AttributeType::INTS}
+	};
+
+	std::unordered_map<std::string, onnx::AttributeType>::iterator it = AtTypeMap.find(*iter);
+	if (it == AtTypeMap.end())
+		throw std::runtime_error(EXCEPTION_INFO "Unkown attribute type!");
+
+	(*type_p) = it->second;
+}
+
+static void addInitializer(vec_str_iter_t& iter, void* var) {
+
+	std::vector<std::unique_ptr<onnx::TensorProto>>* initializer_p =
+		(std::vector<std::unique_ptr<onnx::TensorProto>>*)var;
+	std::unique_ptr<onnx::TensorProto> initializer = std::make_unique<onnx::TensorProto>();
+	static map_cmd_set_t cmdset;
+
+	#define CMD_SET_INITIALIZER
+	#include "commands"
+	#undef CMD_SET_INITIALIZER
+
+	try {
+		scope_going(iter, cmdset);
+	}
+	catch (const std::exception& err) {
+		throw std::runtime_error(err.what());
+	}
+
+	(*initializer_p).push_back(std::move(initializer));
+}
+
+static void addTensorType(vec_str_iter_t& iter, void* var) {
+	onnx::TensorDataType* type_p = (onnx::TensorDataType*)var;
+	(*type_p) = (onnx::TensorDataType)std::stoi(*iter);
+}
+
+static void addInitializerDims(vec_str_iter_t& iter, void* var) {
+	std::vector<int64_t>* ints_p = (std::vector<int64_t>*)var;
+	(*ints_p).push_back(std::stoi(*iter));
+}
+
 static void addAttributeInts(vec_str_iter_t& iter, void* var) {
 	std::vector<int64_t>* ints_p = (std::vector<int64_t>*)var;
 	(*ints_p).push_back(std::stoi(*iter));
@@ -198,6 +254,11 @@ static void addNodePut(vec_str_iter_t& iter, void* var) {
 static void sTos(vec_str_iter_t& iter, void* var) {
 	std::string* str_p = (std::string*)var;
 	*str_p = *iter;
+}
+
+static void sTof(vec_str_iter_t& iter, void* var) {
+	float* float_p = (float*)var;
+	*float_p = std::stof(*iter);
 }
 
 static void sToi(vec_str_iter_t& iter, void* var) {

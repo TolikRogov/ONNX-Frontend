@@ -93,3 +93,69 @@ DEF_CMD_(
 		DEF_CMD_VAL_("ints:", attribute.ints, addAttributeInts)
 	#endif
 )
+
+DEF_CMD_(
+	#ifdef CMD_SET_ATTRIBUTE
+		DEF_CMD_VAL_("type:", attribute.type, addAttributeType)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_ATTRIBUTE
+		DEF_CMD_VAL_("i:", attribute.i, sToi)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_ATTRIBUTE
+		DEF_CMD_VAL_("s:", attribute.s, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_ATTRIBUTE
+		DEF_CMD_VAL_("f:", attribute.f, sTof)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_GRAPH
+		DEF_CMD_VAL_("name:", (*graph_p)->name, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_GRAPH
+		DEF_CMD_VAL_("initializer", (*graph_p)->initializer, addInitializer)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_INITIALIZER
+		DEF_CMD_VAL_("dims:", (initializer)->dims, addInitializerDims)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_INITIALIZER
+		DEF_CMD_VAL_("data_type:", (initializer)->data_type, addTensorType)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_INITIALIZER
+		DEF_CMD_VAL_("name:", (initializer)->name, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_INITIALIZER
+		DEF_CMD_VAL_("name:", (initializer)->name, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_INITIALIZER
+		DEF_CMD_VAL_("raw_data:", (initializer)->raw_data, sTos)
+	#endif
+)

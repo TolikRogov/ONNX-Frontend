@@ -80,10 +80,9 @@ namespace onnx {
 
 	struct TensorProto {
 		std::string name;
-		std::string doc_string;
 		std::vector<int64_t> dims;
 		TensorDataType data_type = TensorDataType::UNDEFINED;
-		std::vector<uint8_t> raw_data;
+		std::string raw_data;
 	};
 
 	struct NodeProto {
