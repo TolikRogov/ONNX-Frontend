@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <format>
 #include <utility>
+#include <stdlib.h>
 #include <iterator>
 #include "ONNX.hpp"
 
@@ -29,9 +30,18 @@ static void addAttributeType(vec_str_iter_t&, void*);
 
 static void addInitializer(vec_str_iter_t&, void*);
 static void addInitializerDims(vec_str_iter_t&, void*);
+static void addInitializerRawData(vec_str_iter_t&, void*);
+
 static void addTensorType(vec_str_iter_t&, void*);
+static void addTensorShape(vec_str_iter_t&, void*);
+static void addTensorDim(vec_str_iter_t&, void*);
+
+static void addValueInfo(vec_str_iter_t&, void*);
+static void addValueInfoType(vec_str_iter_t&, void*);
+static void addValueInfoTensor(vec_str_iter_t&, void*);
 
 static void setMetadataProps(vec_str_iter_t&, void*);
+static void addMetadataValue(vec_str_iter_t&, void*);
 
 static void sTof(vec_str_iter_t&, void*);
 static void sTos(vec_str_iter_t&, void*);
@@ -39,6 +49,16 @@ static void sToi(vec_str_iter_t&, void*);
 static void sToOpts(vec_str_iter_t&, void*);
 
 void onnx::ModelProto::print_info() {
+	if (is_empty()) {
+		std::cout << "Model is empty!" << std::endl;
+		exit(EXIT_SUCCESS);
+	}
+
+	if (!is_filled()) {
+		std::cout << "Model is not filled!" << std::endl;
+		exit(EXIT_SUCCESS);
+	}
+
 	std::cout << "Model Information:" << std::endl;
 
 	std::cout << "ir_version: " << ir_version << std::endl;
@@ -103,6 +123,7 @@ static void scope_going(vec_str_iter_t& iter, map_cmd_set_t& cmdset) {
 static void setMetadataProps(vec_str_iter_t& iter, void* var) {
 
 	metadata_t* metadata_props_p = (metadata_t*)var;
+	std::pair<std::string, std::string> key_val = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_METADATA
@@ -115,6 +136,8 @@ static void setMetadataProps(vec_str_iter_t& iter, void* var) {
 	catch (const std::exception& err) {
 		throw std::runtime_error(err.what());
 	}
+
+	(*metadata_props_p).insert(key_val);
 }
 
 static void setOpsetImport(vec_str_iter_t& iter, void* var) {
@@ -229,6 +252,119 @@ static void addInitializer(vec_str_iter_t& iter, void* var) {
 	}
 
 	(*initializer_p).push_back(std::move(initializer));
+}
+
+static void addValueInfo(vec_str_iter_t& iter, void* var) {
+
+	std::vector<onnx::ValueInfoProto>* val_info_p = (std::vector<onnx::ValueInfoProto>*)var;
+	onnx::ValueInfoProto value_info = {};
+	static map_cmd_set_t cmdset;
+
+	#define CMD_SET_VALUE_INFO
+	#include "commands"
+	#undef CMD_SET_VALUE_INFO
+
+	try {
+		scope_going(iter, cmdset);
+	}
+	catch (const std::exception& err) {
+		throw std::runtime_error(err.what());
+	}
+
+	(*val_info_p).push_back(std::move(value_info));
+}
+
+static void addValueInfoType(vec_str_iter_t& iter, void* var) {
+
+	onnx::TypeProto* type_p = (onnx::TypeProto*)var;
+	static map_cmd_set_t cmdset;
+
+	#define CMD_SET_VALINFO_TYPE
+	#include "commands"
+	#undef CMD_SET_VALINFO_TYPE
+
+	try {
+		scope_going(iter, cmdset);
+	}
+	catch (const std::exception& err) {
+		throw std::runtime_error(err.what());
+	}
+}
+
+static void addValueInfoTensor(vec_str_iter_t& iter, void* var) {
+
+	onnx::valinfo_type_value_t* type_value_p = (onnx::valinfo_type_value_t*)var;
+	onnx::TensorTypeProto tensor = {};
+	static map_cmd_set_t cmdset;
+
+	#define CMD_SET_VALINFO_TENSOR
+	#include "commands"
+	#undef CMD_SET_VALINFO_TENSOR
+
+	try {
+		scope_going(iter, cmdset);
+	}
+	catch (const std::exception& err) {
+		throw std::runtime_error(err.what());
+	}
+
+	(*type_value_p) = std::move(tensor);
+}
+
+static void addTensorShape(vec_str_iter_t& iter, void* var) {
+
+	std::optional<onnx::TensorShapeProto>* shape_p = (std::optional<onnx::TensorShapeProto>*)var;
+	onnx::TensorShapeProto shape = {};
+	static map_cmd_set_t cmdset;
+
+	#define CMD_SET_TENSOR_SHAPE
+	#include "commands"
+	#undef CMD_SET_TENSOR_SHAPE
+
+	try {
+		scope_going(iter, cmdset);
+	}
+	catch (const std::exception& err) {
+		throw std::runtime_error(err.what());
+	}
+
+	(*shape_p) = std::move(shape);
+}
+
+static void addTensorDim(vec_str_iter_t& iter, void* var) {
+
+	std::vector<onnx::Dimension>* dim_p = (std::vector<onnx::Dimension>*)var;
+	onnx::Dimension dim = {};
+	static map_cmd_set_t cmdset;
+
+	#define CMD_SET_TENSOR_DIM
+	#include "commands"
+	#undef CMD_SET_TENSOR_DIM
+
+	try {
+		scope_going(iter, cmdset);
+	}
+	catch (const std::exception& err) {
+		throw std::runtime_error(err.what());
+	}
+
+	(*dim_p).push_back(std::move(dim));
+}
+
+static void addMetadataValue(vec_str_iter_t& iter, void* var) {
+	std::string* value_p = (std::string*)var;
+	for (; *iter != "}"; iter++)
+		(*value_p) += *iter;
+	iter--;
+}
+
+static void addInitializerRawData(vec_str_iter_t& iter, void* var) {
+	std::vector<uint8_t>* raw_data_p = (std::vector<uint8_t>*)var;
+	std::string overall_raw_data = *iter;
+	for (; *iter != "}"; iter++)
+		overall_raw_data += *iter;
+	(*raw_data_p).assign(overall_raw_data.begin() + 1, overall_raw_data.end() - 1);
+	iter--;
 }
 
 static void addTensorType(vec_str_iter_t& iter, void* var) {

@@ -65,15 +65,15 @@ namespace onnx {
 		std::optional<TensorShapeProto> shape;
 	};
 
+	typedef std::variant<TensorTypeProto> valinfo_type_value_t;
+
 	struct TypeProto {
-		std::variant<TensorTypeProto> value_type;
-		std::string denotation;
+		valinfo_type_value_t value_type;
 	};
 
 	struct ValueInfoProto {
 		std::string name;
 		TypeProto type;
-		std::string doc_string;
 	};
 
 	struct AttributeProto;
@@ -82,7 +82,7 @@ namespace onnx {
 		std::string name;
 		std::vector<int64_t> dims;
 		TensorDataType data_type = TensorDataType::UNDEFINED;
-		std::string raw_data;
+		std::vector<uint8_t> raw_data;
 	};
 
 	struct NodeProto {

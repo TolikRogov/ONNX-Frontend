@@ -35,6 +35,18 @@ DEF_CMD_(
 )
 
 DEF_CMD_(
+	#ifdef CMD_SET_METADATA
+		DEF_CMD_VAL_("key:", key_val.first, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_METADATA
+		DEF_CMD_VAL_("value:", key_val.second, addMetadataValue)
+	#endif
+)
+
+DEF_CMD_(
 	#ifdef CMD_SET_OPSET
 		DEF_CMD_VAL_("version:", opset_import_p->version, sToi)
 	#endif
@@ -156,6 +168,72 @@ DEF_CMD_(
 
 DEF_CMD_(
 	#ifdef CMD_SET_INITIALIZER
-		DEF_CMD_VAL_("raw_data:", (initializer)->raw_data, sTos)
+		DEF_CMD_VAL_("raw_data:", (initializer)->raw_data, addInitializerRawData)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_GRAPH
+		DEF_CMD_VAL_("input", (*graph_p)->input, addValueInfo)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_GRAPH
+		DEF_CMD_VAL_("output", (*graph_p)->output, addValueInfo)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_GRAPH
+		DEF_CMD_VAL_("value_info", (*graph_p)->value_info, addValueInfo)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_VALUE_INFO
+		DEF_CMD_VAL_("name:", value_info.name, sTos)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_VALUE_INFO
+		DEF_CMD_VAL_("type", value_info.type, addValueInfoType)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_VALINFO_TYPE
+		DEF_CMD_VAL_("tensor_type", type_p->value_type, addValueInfoTensor)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_VALINFO_TENSOR
+		DEF_CMD_VAL_("elem_type:", tensor.elem_type, addTensorType)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_VALINFO_TENSOR
+		DEF_CMD_VAL_("shape", tensor.shape, addTensorShape)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_TENSOR_SHAPE
+		DEF_CMD_VAL_("dim", shape.dim, addTensorDim)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_TENSOR_DIM
+		DEF_CMD_VAL_("dim_value:", dim.value, sToi)
+	#endif
+)
+
+DEF_CMD_(
+	#ifdef CMD_SET_TENSOR_DIM
+		DEF_CMD_VAL_("dim_param:", dim.value, sTos)
 	#endif
 )
