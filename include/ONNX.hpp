@@ -11,6 +11,7 @@
 #include "onnx_utils.hpp"
 
 #define DEFAULT_OPSET_IMPORT_DOMAIN "ai.onnx"
+#define DEFAULT_OPSET_MAGIC "ONNXOPSET"
 
 typedef std::vector<std::string>::iterator vec_str_iter_t;
 typedef void (*cmd_func_t) (vec_str_iter_t&, void*);
@@ -48,12 +49,12 @@ namespace onnx {
 		INT,
 		STRING,
 		FLOATS,
-		INTS
+		INTS,
+		TENSOR,
 	};
 
 	struct Dimension {//dim_value	//dim_param
 		std::variant<int64_t, std::string> value;
-		bool defined = true;
 	};
 
 	struct TensorShapeProto {
@@ -83,6 +84,7 @@ namespace onnx {
 		std::vector<int64_t> dims;
 		TensorDataType data_type = TensorDataType::UNDEFINED;
 		std::vector<uint8_t> raw_data;
+		std::vector<float> float_data;
 	};
 
 	struct NodeProto {
@@ -113,14 +115,15 @@ namespace onnx {
 		float f = 0.0f;
 		int64_t i = 0;
 		std::string s;
+		TensorProto t;
 
 		std::vector<float> floats;
 		std::vector<int64_t> ints;
 	};
 
 	struct OperatorProto {
-		std::string op_type;
 		int64_t since_version = 0;
+		bool used = 0;
 		std::string doc_string;
 	};
 
@@ -130,14 +133,10 @@ namespace onnx {
 	};
 
 	struct OperatorSetProto {
-		std::string magic;
-		int32_t ir_version = 0;
-		std::string ir_version_prerelease;
-		std::string ir_build_metadata;
-		std::string domain;
+		std::string magic = DEFAULT_OPSET_MAGIC;
+		std::string domain = DEFAULT_OPSET_IMPORT_DOMAIN;
 		int64_t opset_version = 0;
-		std::string doc_string;
-		std::vector<OperatorProto> operator_;
+		std::unordered_map<std::string, OperatorProto> operator_;
 	};
 
 	class ModelProto {
@@ -148,25 +147,68 @@ namespace onnx {
 		metadata_t metadata_props;
 
 		std::vector<std::string> protoc_buffer;
+		std::vector<std::string> opset_buffer;
 		std::unique_ptr<GraphProto> graph;
-		OperatorSetProto opset;
+
+		static OperatorSetProto opset;
+		static void print_opset();
+
+		static void scope_going(vec_str_iter_t&, map_cmd_set_t&);
+		static void setOpset(vec_str_iter_t&, void*);
+		static void addOperator(vec_str_iter_t&, void*);
+
+		static void setOpsetImport(vec_str_iter_t&, void*);
+		static void setGraph(vec_str_iter_t&, void*);
+
+		static void addNode(vec_str_iter_t&, void*);
+		static void addNodePut(vec_str_iter_t&, void*);
+		static void addOpType(vec_str_iter_t&, void*);
+
+		static void addAttribute(vec_str_iter_t&, void*);
+		static void addAttributeType(vec_str_iter_t&, void*);
+		static void addToVectorInts(vec_str_iter_t&, void*);
+
+		static void addInitializer(vec_str_iter_t&, void*);
+		static void addInitializerRawData(vec_str_iter_t&, void*);
+		static void addInitializerFloatData(vec_str_iter_t&, void*);
+
+		static void addTensorType(vec_str_iter_t&, void*);
+		static void addTensorShape(vec_str_iter_t&, void*);
+		static void addTensorDim(vec_str_iter_t&, void*);
+		static void addDimParam(vec_str_iter_t&, void*);
+
+		static void addValueInfo(vec_str_iter_t&, void*);
+		static void addValueInfoType(vec_str_iter_t&, void*);
+		static void addValueInfoTensor(vec_str_iter_t&, void*);
+
+		static void setMetadataProps(vec_str_iter_t&, void*);
+		static void addMetadataValue(vec_str_iter_t&, void*);
+
+		static void sTof(vec_str_iter_t&, void*);
+		static void sTos(vec_str_iter_t&, void*);
+		static void sToi(vec_str_iter_t&, void*);
+		static void sToOpts(vec_str_iter_t&, void*);
 
 		public:
 			ModelProto(const std::string& protoc_path) {
 				protoc_buffer = readFile(protoc_path);
+				opset_buffer = readFile(ONNX_OPERATORS);
 
 				#ifdef DEBUG
-					std::fstream outFile(TEMP_FILE);
+					std::ofstream outFile(TEMP_FILE);
 					for (auto iter = protoc_buffer.begin(); iter != protoc_buffer.end(); iter++)
 						outFile << (*iter).c_str() << std::endl;
 				#endif
 			}
 
+			void fill();
+
+			bool check_optype(std::string& op_type) { return opset.operator_.contains(op_type); }
 			bool is_empty() { return protoc_buffer.empty(); }
 			bool is_filled() { return (graph != nullptr); }
 
-			void fill();
 			void print_info();
+			void print_metadata();
 	};
 
 }; //namespace onnx
