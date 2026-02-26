@@ -97,6 +97,16 @@ void onnx::ModelProto::fill() {
 	#include "commands.txt"
 	#undef CMD_SET_FILL
 
+	dotFile << "digraph " DOT_GRAPH_NAME "{\n";
+	dotFile << "\tbgcolor = " DOT_COLOR_BACKGROUND ";\n"
+			   "\tnode [shape="    	DOT_NODE_SHAPE 	  ","
+					   "style="    	DOT_NODE_STYLE 	  ","
+					   "fontsize=" 	DOT_NODE_FONTSIZE ","
+					   "fontcolor=" DOT_COLOR_FONT	  ","
+					   "color="		DOT_COLOR_NODE_BORDER
+			   "];\n"
+			   "\tedge [color=" DOT_COLOR_EDGE "];\n";
+
 	for ( ; iter != protoc_buffer.end(); iter++) {
 		if (iter == opset_buffer.end())
 			iter = protoc_buffer.begin();
@@ -114,6 +124,10 @@ void onnx::ModelProto::fill() {
 			throw std::runtime_error(err.what());
 		}
 	}
+
+	dotFile << "}";
+	dotFile.close();
+	system(DOT_GEN(model_path));
 }
 
 void onnx::ModelProto::scope_going(vec_str_iter_t& iter, map_cmd_set_t& cmdset) {
@@ -217,8 +231,6 @@ void onnx::ModelProto::setOpsetImport(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::setGraph(vec_str_iter_t& iter, void* var) {
 
-	dotFile << "digraph main_graph {\n";
-	dotFile << "\tnode [shape=box, style=\"rounded\", fontsize=10];\n\tedge [color=gray50];\n";
 	std::unique_ptr<GraphProto>* graph_p = (std::unique_ptr<GraphProto>*)var;
     (*graph_p) = std::make_unique<onnx::GraphProto>();
 	static map_cmd_set_t cmdset;
@@ -233,10 +245,6 @@ void onnx::ModelProto::setGraph(vec_str_iter_t& iter, void* var) {
 	catch (const std::exception& err) {
 		throw std::runtime_error(err.what());
 	}
-
-	dotFile << "}";
-	dotFile.close();
-	system(DOT_GEN(model_path));
 }
 
 void onnx::ModelProto::addNode(vec_str_iter_t& iter, void* var) {
@@ -265,7 +273,8 @@ void onnx::ModelProto::addNodeToGraphviz(NodeProto& node) {
 	static int node_number = 0;
 	std::string node_op_type = node.op_type.substr(1, node.op_type.size() - 2);
 	node.graphviz_name = node_op_type + std::to_string(node_number++);
-	dotFile << "\t" << node.graphviz_name << " [label=" << node_op_type << "]\n";
+	dotFile << "\t" << node.graphviz_name << " [label=" << node_op_type
+			<< ",fillcolor=" << opset.operator_[node.op_type].color << "]\n";
 
 	std::vector<std::string>::iterator out_it = node.output.begin(), in_it = node.input.begin();
 	for ( ; out_it != node.output.end(); out_it++)
