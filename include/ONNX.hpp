@@ -89,6 +89,7 @@ namespace onnx {
 
 	struct NodeProto {
 		std::string name;
+		std::string graphviz_name;
 		std::string op_type;
 		std::string domain;
 		std::vector<std::string> input;
@@ -123,6 +124,7 @@ namespace onnx {
 
 	struct OperatorProto {
 		int64_t since_version = 0;
+		std::string color;
 		bool used = 0;
 		std::string doc_string;
 	};
@@ -150,6 +152,8 @@ namespace onnx {
 		std::vector<std::string> opset_buffer;
 		std::unique_ptr<GraphProto> graph;
 
+		static std::ofstream dotFile;
+		static std::string model_path;
 		static OperatorSetProto opset;
 		static void print_opset();
 
@@ -161,6 +165,7 @@ namespace onnx {
 		static void setGraph(vec_str_iter_t&, void*);
 
 		static void addNode(vec_str_iter_t&, void*);
+		static void addNodeToGraphviz(NodeProto&);
 		static void addNodePut(vec_str_iter_t&, void*);
 		static void addOpType(vec_str_iter_t&, void*);
 
@@ -190,15 +195,12 @@ namespace onnx {
 		static void sToOpts(vec_str_iter_t&, void*);
 
 		public:
-			ModelProto(const std::string& protoc_path) {
-				protoc_buffer = readFile(protoc_path);
+			ModelProto(const std::string& onnx_path) {
+				model_path = onnx_path;
+				protocDecode(onnx_path);
+				protoc_buffer = readFile(TEMP_FILE);
 				opset_buffer = readFile(ONNX_OPERATORS);
-
-				#ifdef DEBUG
-					std::ofstream outFile(TEMP_FILE);
-					for (auto iter = protoc_buffer.begin(); iter != protoc_buffer.end(); iter++)
-						outFile << (*iter).c_str() << std::endl;
-				#endif
+				dotFile.open(model_path + DOT_EXTENSION);
 			}
 
 			void fill();

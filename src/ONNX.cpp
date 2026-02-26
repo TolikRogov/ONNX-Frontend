@@ -16,6 +16,8 @@
 	__VA_ARGS__			\
 }
 
+std::ofstream onnx::ModelProto::dotFile;
+std::string onnx::ModelProto::model_path;
 onnx::OperatorSetProto onnx::ModelProto::opset;
 
 void onnx::ModelProto::print_opset() {
@@ -23,13 +25,10 @@ void onnx::ModelProto::print_opset() {
 	std::cout << PRINT_HEAD("Operators set", '-');
 
 	std::unordered_map<std::string, OperatorProto>::iterator iter = opset.operator_.begin();
-	std::cout << std::left << std::setw(PRINT_WIDTH) << "Operator type"
-			  << std::left << std::setw(PRINT_WIDTH) << "since version" << std::endl;
+	std::cout << std::left << std::setw(PRINT_WIDTH) << "Operator type" << std::endl;
 	for ( ; iter != opset.operator_.end(); iter++) {
-		std::cout << std::left << std::setw(PRINT_WIDTH)
-				  << COLOR_IF_USED((*iter).first, (*iter).second.used)
-				  << std::right << std::setw(PRINT_WIDTH)
-				  << (*iter).second.since_version << std::endl;
+		std::cout << std::left << std::setw(PRINT_LONG_WIDTH)
+				  << COLOR_IF_USED((*iter).first, (*iter).second.used) << std::endl;
 	}
 }
 
@@ -67,6 +66,8 @@ void onnx::ModelProto::print_info() {
 
 	std::cout << PRINT_HEAD("MODEL INFORMATION", '=');
 
+	std::cout << std::left << std::setw(PRINT_WIDTH) << "model_path:"
+			  << model_path << std::endl;
 	std::cout << std::left << std::setw(PRINT_WIDTH) << "ir_version:"
 			  << ir_version << std::endl;
 	std::cout << std::left << std::setw(PRINT_WIDTH) << "producer_name:"
@@ -141,7 +142,7 @@ void onnx::ModelProto::scope_going(vec_str_iter_t& iter, map_cmd_set_t& cmdset) 
 
 void onnx::ModelProto::setOpset(vec_str_iter_t& iter, void* var) {
 
-	onnx::OperatorSetProto* opset_p = (onnx::OperatorSetProto*)var;
+	OperatorSetProto* opset_p = (OperatorSetProto*)var;
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_OPSETID
@@ -158,9 +159,9 @@ void onnx::ModelProto::setOpset(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addOperator(vec_str_iter_t& iter, void* var) {
 
-	std::unordered_map<std::string, onnx::OperatorProto>* operators_p =
-		(std::unordered_map<std::string, onnx::OperatorProto>*)var;
-	std::pair<std::string, onnx::OperatorProto> operator_ = {};
+	std::unordered_map<std::string, OperatorProto>* operators_p =
+		(std::unordered_map<std::string, OperatorProto>*)var;
+	std::pair<std::string, OperatorProto> operator_ = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_OPERATOR
@@ -199,7 +200,7 @@ void onnx::ModelProto::setMetadataProps(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::setOpsetImport(vec_str_iter_t& iter, void* var) {
 
-	onnx::OperatorSetIdProto* opset_import_p = (onnx::OperatorSetIdProto*)var;
+	OperatorSetIdProto* opset_import_p = (OperatorSetIdProto*)var;
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_OPSET
@@ -216,7 +217,9 @@ void onnx::ModelProto::setOpsetImport(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::setGraph(vec_str_iter_t& iter, void* var) {
 
-	std::unique_ptr<onnx::GraphProto>* graph_p = (std::unique_ptr<onnx::GraphProto>*)var;
+	dotFile << "digraph main_graph {\n";
+	dotFile << "\tnode [shape=box, style=\"rounded\", fontsize=10];\n\tedge [color=gray50];\n";
+	std::unique_ptr<GraphProto>* graph_p = (std::unique_ptr<GraphProto>*)var;
     (*graph_p) = std::make_unique<onnx::GraphProto>();
 	static map_cmd_set_t cmdset;
 
@@ -230,12 +233,16 @@ void onnx::ModelProto::setGraph(vec_str_iter_t& iter, void* var) {
 	catch (const std::exception& err) {
 		throw std::runtime_error(err.what());
 	}
+
+	dotFile << "}";
+	dotFile.close();
+	system(DOT_GEN(model_path));
 }
 
 void onnx::ModelProto::addNode(vec_str_iter_t& iter, void* var) {
 
-	std::vector<onnx::NodeProto>* node_p = (std::vector<onnx::NodeProto>*)var;
-	onnx::NodeProto node = {};
+	std::vector<NodeProto>* node_p = (std::vector<NodeProto>*)var;
+	NodeProto node = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_NODE
@@ -250,12 +257,31 @@ void onnx::ModelProto::addNode(vec_str_iter_t& iter, void* var) {
 	}
 
 	(*node_p).push_back(std::move(node));
+	addNodeToGraphviz((*node_p).back());
+}
+
+void onnx::ModelProto::addNodeToGraphviz(NodeProto& node) {
+	static std::unordered_map<std::string, std::string> output_nodes;
+	static int node_number = 0;
+	std::string node_op_type = node.op_type.substr(1, node.op_type.size() - 2);
+	node.graphviz_name = node_op_type + std::to_string(node_number++);
+	dotFile << "\t" << node.graphviz_name << " [label=" << node_op_type << "]\n";
+
+	std::vector<std::string>::iterator out_it = node.output.begin(), in_it = node.input.begin();
+	for ( ; out_it != node.output.end(); out_it++)
+		output_nodes[*out_it] = node.graphviz_name;
+	for ( ; in_it != node.input.end(); in_it++) {
+		if (!output_nodes.contains(*in_it))
+			continue;
+		dotFile << "\t" << output_nodes[*in_it]
+				<< " -> " << node.graphviz_name << "\n";
+	}
 }
 
 void onnx::ModelProto::addAttribute(vec_str_iter_t& iter, void* var) {
 
-	std::vector<onnx::AttributeProto>* attribute_p = (std::vector<onnx::AttributeProto>*)var;
-	onnx::AttributeProto attribute = {};
+	std::vector<AttributeProto>* attribute_p = (std::vector<AttributeProto>*)var;
+	AttributeProto attribute = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_ATTRIBUTE
@@ -274,17 +300,17 @@ void onnx::ModelProto::addAttribute(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addAttributeType(vec_str_iter_t& iter, void* var) {
 
-	onnx::AttributeType* type_p = (onnx::AttributeType*)var;
-	static std::unordered_map<std::string, onnx::AttributeType> AtTypeMap = {
-		{"FLOAT", 	onnx::AttributeType::FLOAT},
-		{"INT", 	onnx::AttributeType::INT},
-		{"STRING", 	onnx::AttributeType::STRING},
-		{"FLOATS", 	onnx::AttributeType::FLOATS},
-		{"INTS", 	onnx::AttributeType::INTS},
-		{"TENSOR",  onnx::AttributeType::TENSOR},
+	AttributeType* type_p = (AttributeType*)var;
+	static std::unordered_map<std::string, AttributeType> AtTypeMap = {
+		{"FLOAT", 	AttributeType::FLOAT},
+		{"INT", 	AttributeType::INT},
+		{"STRING", 	AttributeType::STRING},
+		{"FLOATS", 	AttributeType::FLOATS},
+		{"INTS", 	AttributeType::INTS},
+		{"TENSOR",  AttributeType::TENSOR},
 	};
 
-	std::unordered_map<std::string, onnx::AttributeType>::iterator it = AtTypeMap.find(*iter);
+	std::unordered_map<std::string, AttributeType>::iterator it = AtTypeMap.find(*iter);
 	if (it == AtTypeMap.end())
 		throw std::runtime_error(EXCEPTION_INFO "Unkown attribute type!");
 
@@ -293,9 +319,9 @@ void onnx::ModelProto::addAttributeType(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addInitializer(vec_str_iter_t& iter, void* var) {
 
-	std::vector<std::unique_ptr<onnx::TensorProto>>* initializer_p =
-		(std::vector<std::unique_ptr<onnx::TensorProto>>*)var;
-	std::unique_ptr<onnx::TensorProto> initializer = std::make_unique<onnx::TensorProto>();
+	std::vector<std::unique_ptr<TensorProto>>* initializer_p =
+		(std::vector<std::unique_ptr<TensorProto>>*)var;
+	std::unique_ptr<TensorProto> initializer = std::make_unique<TensorProto>();
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_INITIALIZER
@@ -314,8 +340,8 @@ void onnx::ModelProto::addInitializer(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addValueInfo(vec_str_iter_t& iter, void* var) {
 
-	std::vector<onnx::ValueInfoProto>* val_info_p = (std::vector<onnx::ValueInfoProto>*)var;
-	onnx::ValueInfoProto value_info = {};
+	std::vector<ValueInfoProto>* val_info_p = (std::vector<ValueInfoProto>*)var;
+	ValueInfoProto value_info = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_VALUE_INFO
@@ -334,7 +360,7 @@ void onnx::ModelProto::addValueInfo(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addValueInfoType(vec_str_iter_t& iter, void* var) {
 
-	onnx::TypeProto* type_p = (onnx::TypeProto*)var;
+	TypeProto* type_p = (TypeProto*)var;
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_VALINFO_TYPE
@@ -351,8 +377,8 @@ void onnx::ModelProto::addValueInfoType(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addValueInfoTensor(vec_str_iter_t& iter, void* var) {
 
-	onnx::valinfo_type_value_t* type_value_p = (onnx::valinfo_type_value_t*)var;
-	onnx::TensorTypeProto tensor = {};
+	valinfo_type_value_t* type_value_p = (valinfo_type_value_t*)var;
+	TensorTypeProto tensor = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_VALINFO_TENSOR
@@ -371,8 +397,8 @@ void onnx::ModelProto::addValueInfoTensor(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addTensorShape(vec_str_iter_t& iter, void* var) {
 
-	std::optional<onnx::TensorShapeProto>* shape_p = (std::optional<onnx::TensorShapeProto>*)var;
-	onnx::TensorShapeProto shape = {};
+	std::optional<TensorShapeProto>* shape_p = (std::optional<TensorShapeProto>*)var;
+	TensorShapeProto shape = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_TENSOR_SHAPE
@@ -391,8 +417,8 @@ void onnx::ModelProto::addTensorShape(vec_str_iter_t& iter, void* var) {
 
 void onnx::ModelProto::addTensorDim(vec_str_iter_t& iter, void* var) {
 
-	std::vector<onnx::Dimension>* dim_p = (std::vector<onnx::Dimension>*)var;
-	onnx::Dimension dim = {};
+	std::vector<Dimension>* dim_p = (std::vector<Dimension>*)var;
+	Dimension dim = {};
 	static map_cmd_set_t cmdset;
 
 	#define CMD_SET_TENSOR_DIM
@@ -410,8 +436,8 @@ void onnx::ModelProto::addTensorDim(vec_str_iter_t& iter, void* var) {
 }
 
 void onnx::ModelProto::addOpType(vec_str_iter_t& iter, void* var) {
-	std::string* op_type_p = (std::string*)var;
 
+	std::string* op_type_p = (std::string*)var;
 	if (!opset.operator_.contains(*iter)) {
 		std::cout << *iter << std::endl;
 		throw std::runtime_error(" ^ " EXCEPTION_INFO "Unsupported operator!");
@@ -422,23 +448,31 @@ void onnx::ModelProto::addOpType(vec_str_iter_t& iter, void* var) {
 }
 
 void onnx::ModelProto::addDimParam(vec_str_iter_t& iter, void* var) {
+
 	std::variant<int64_t, std::string>* value_p = (std::variant<int64_t, std::string>*)var;
 	std::string overall_string = *iter;
+
 	for (; *iter != "}"; iter++)
 		overall_string += " " + *iter;
 	(*value_p) = overall_string;
+
 	iter--;
 }
 
 void onnx::ModelProto::addMetadataValue(vec_str_iter_t& iter, void* var) {
+
 	std::string* value_p = (std::string*)var;
+
 	for (; *iter != "}"; iter++)
 		(*value_p) += " " + *iter;
+
 	iter--;
 }
 
 void onnx::ModelProto::addInitializerFloatData(vec_str_iter_t& iter, void* var) {
+
 	std::vector<float>* float_data_p = (std::vector<float>*)var;
+
 	for ( ; true; iter++) {
 		try {
 			(*float_data_p).push_back(std::stof(*(iter++)));
@@ -453,17 +487,20 @@ void onnx::ModelProto::addInitializerFloatData(vec_str_iter_t& iter, void* var) 
 }
 
 void onnx::ModelProto::addInitializerRawData(vec_str_iter_t& iter, void* var) {
+
 	std::vector<uint8_t>* raw_data_p = (std::vector<uint8_t>*)var;
 	std::string overall_raw_data = *iter;
+
 	for (; *iter != "}"; iter++)
 		overall_raw_data += " " + *iter;
 	(*raw_data_p).assign(overall_raw_data.begin() + 1, overall_raw_data.end() - 1);
+
 	iter--;
 }
 
 void onnx::ModelProto::addTensorType(vec_str_iter_t& iter, void* var) {
-	onnx::TensorDataType* type_p = (onnx::TensorDataType*)var;
-	(*type_p) = (onnx::TensorDataType)std::stoi(*iter);
+	TensorDataType* type_p = (TensorDataType*)var;
+	(*type_p) = (TensorDataType)std::stoi(*iter);
 }
 
 void onnx::ModelProto::addToVectorInts(vec_str_iter_t& iter, void* var) {

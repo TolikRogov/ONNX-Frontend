@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <exception>
-#include "onnx_utils.hpp"
 #include "ONNX.hpp"
 
 int main(int argc, char** argv) {
@@ -12,8 +11,7 @@ int main(int argc, char** argv) {
 	}
 
 	try {
-		protocDecode(argv[1]);
-		onnx::ModelProto model(TEMP_FILE);
+		onnx::ModelProto model(argv[1]);
 		model.fill();
 		model.print_info();
 	}

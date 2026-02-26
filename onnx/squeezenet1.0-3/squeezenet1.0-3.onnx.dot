@@ -1,0 +1,143 @@
+digraph main_graph {
+	node [shape=box, style="rounded", fontsize=10];
+	edge [color=gray50];
+	Conv0 [label=Conv]
+	Relu1 [label=Relu]
+	Conv0 -> Relu1
+	MaxPool2 [label=MaxPool]
+	Relu1 -> MaxPool2
+	Conv3 [label=Conv]
+	MaxPool2 -> Conv3
+	Relu4 [label=Relu]
+	Conv3 -> Relu4
+	Conv5 [label=Conv]
+	Relu4 -> Conv5
+	Relu6 [label=Relu]
+	Conv5 -> Relu6
+	Conv7 [label=Conv]
+	Relu4 -> Conv7
+	Relu8 [label=Relu]
+	Conv7 -> Relu8
+	Concat9 [label=Concat]
+	Relu6 -> Concat9
+	Relu8 -> Concat9
+	Conv10 [label=Conv]
+	Concat9 -> Conv10
+	Relu11 [label=Relu]
+	Conv10 -> Relu11
+	Conv12 [label=Conv]
+	Relu11 -> Conv12
+	Relu13 [label=Relu]
+	Conv12 -> Relu13
+	Conv14 [label=Conv]
+	Relu11 -> Conv14
+	Relu15 [label=Relu]
+	Conv14 -> Relu15
+	Concat16 [label=Concat]
+	Relu13 -> Concat16
+	Relu15 -> Concat16
+	MaxPool17 [label=MaxPool]
+	Concat16 -> MaxPool17
+	Conv18 [label=Conv]
+	MaxPool17 -> Conv18
+	Relu19 [label=Relu]
+	Conv18 -> Relu19
+	Conv20 [label=Conv]
+	Relu19 -> Conv20
+	Relu21 [label=Relu]
+	Conv20 -> Relu21
+	Conv22 [label=Conv]
+	Relu19 -> Conv22
+	Relu23 [label=Relu]
+	Conv22 -> Relu23
+	Concat24 [label=Concat]
+	Relu21 -> Concat24
+	Relu23 -> Concat24
+	Conv25 [label=Conv]
+	Concat24 -> Conv25
+	Relu26 [label=Relu]
+	Conv25 -> Relu26
+	Conv27 [label=Conv]
+	Relu26 -> Conv27
+	Relu28 [label=Relu]
+	Conv27 -> Relu28
+	Conv29 [label=Conv]
+	Relu26 -> Conv29
+	Relu30 [label=Relu]
+	Conv29 -> Relu30
+	Concat31 [label=Concat]
+	Relu28 -> Concat31
+	Relu30 -> Concat31
+	MaxPool32 [label=MaxPool]
+	Concat31 -> MaxPool32
+	Conv33 [label=Conv]
+	MaxPool32 -> Conv33
+	Relu34 [label=Relu]
+	Conv33 -> Relu34
+	Conv35 [label=Conv]
+	Relu34 -> Conv35
+	Relu36 [label=Relu]
+	Conv35 -> Relu36
+	Conv37 [label=Conv]
+	Relu34 -> Conv37
+	Relu38 [label=Relu]
+	Conv37 -> Relu38
+	Concat39 [label=Concat]
+	Relu36 -> Concat39
+	Relu38 -> Concat39
+	Conv40 [label=Conv]
+	Concat39 -> Conv40
+	Relu41 [label=Relu]
+	Conv40 -> Relu41
+	Conv42 [label=Conv]
+	Relu41 -> Conv42
+	Relu43 [label=Relu]
+	Conv42 -> Relu43
+	Conv44 [label=Conv]
+	Relu41 -> Conv44
+	Relu45 [label=Relu]
+	Conv44 -> Relu45
+	Concat46 [label=Concat]
+	Relu43 -> Concat46
+	Relu45 -> Concat46
+	Conv47 [label=Conv]
+	Concat46 -> Conv47
+	Relu48 [label=Relu]
+	Conv47 -> Relu48
+	Conv49 [label=Conv]
+	Relu48 -> Conv49
+	Relu50 [label=Relu]
+	Conv49 -> Relu50
+	Conv51 [label=Conv]
+	Relu48 -> Conv51
+	Relu52 [label=Relu]
+	Conv51 -> Relu52
+	Concat53 [label=Concat]
+	Relu50 -> Concat53
+	Relu52 -> Concat53
+	Conv54 [label=Conv]
+	Concat53 -> Conv54
+	Relu55 [label=Relu]
+	Conv54 -> Relu55
+	Conv56 [label=Conv]
+	Relu55 -> Conv56
+	Relu57 [label=Relu]
+	Conv56 -> Relu57
+	Conv58 [label=Conv]
+	Relu55 -> Conv58
+	Relu59 [label=Relu]
+	Conv58 -> Relu59
+	Concat60 [label=Concat]
+	Relu57 -> Concat60
+	Relu59 -> Concat60
+	Dropout61 [label=Dropout]
+	Concat60 -> Dropout61
+	Conv62 [label=Conv]
+	Dropout61 -> Conv62
+	Relu63 [label=Relu]
+	Conv62 -> Relu63
+	GlobalAveragePool64 [label=GlobalAveragePool]
+	Relu63 -> GlobalAveragePool64
+	Softmax65 [label=Softmax]
+	GlobalAveragePool64 -> Softmax65
+}

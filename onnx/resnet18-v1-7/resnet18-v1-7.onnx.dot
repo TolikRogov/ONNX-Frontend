@@ -1,0 +1,149 @@
+digraph main_graph {
+	node [shape=box, style="rounded", fontsize=10];
+	edge [color=gray50];
+	Conv0 [label=Conv]
+	BatchNormalization1 [label=BatchNormalization]
+	Conv0 -> BatchNormalization1
+	Relu2 [label=Relu]
+	BatchNormalization1 -> Relu2
+	MaxPool3 [label=MaxPool]
+	Relu2 -> MaxPool3
+	Conv4 [label=Conv]
+	MaxPool3 -> Conv4
+	BatchNormalization5 [label=BatchNormalization]
+	Conv4 -> BatchNormalization5
+	Relu6 [label=Relu]
+	BatchNormalization5 -> Relu6
+	Conv7 [label=Conv]
+	Relu6 -> Conv7
+	BatchNormalization8 [label=BatchNormalization]
+	Conv7 -> BatchNormalization8
+	Add9 [label=Add]
+	MaxPool3 -> Add9
+	BatchNormalization8 -> Add9
+	Relu10 [label=Relu]
+	Add9 -> Relu10
+	Conv11 [label=Conv]
+	Relu10 -> Conv11
+	BatchNormalization12 [label=BatchNormalization]
+	Conv11 -> BatchNormalization12
+	Relu13 [label=Relu]
+	BatchNormalization12 -> Relu13
+	Conv14 [label=Conv]
+	Relu13 -> Conv14
+	BatchNormalization15 [label=BatchNormalization]
+	Conv14 -> BatchNormalization15
+	Add16 [label=Add]
+	Relu10 -> Add16
+	BatchNormalization15 -> Add16
+	Relu17 [label=Relu]
+	Add16 -> Relu17
+	Conv18 [label=Conv]
+	Relu17 -> Conv18
+	BatchNormalization19 [label=BatchNormalization]
+	Conv18 -> BatchNormalization19
+	Conv20 [label=Conv]
+	Relu17 -> Conv20
+	BatchNormalization21 [label=BatchNormalization]
+	Conv20 -> BatchNormalization21
+	Relu22 [label=Relu]
+	BatchNormalization21 -> Relu22
+	Conv23 [label=Conv]
+	Relu22 -> Conv23
+	BatchNormalization24 [label=BatchNormalization]
+	Conv23 -> BatchNormalization24
+	Add25 [label=Add]
+	BatchNormalization19 -> Add25
+	BatchNormalization24 -> Add25
+	Relu26 [label=Relu]
+	Add25 -> Relu26
+	Conv27 [label=Conv]
+	Relu26 -> Conv27
+	BatchNormalization28 [label=BatchNormalization]
+	Conv27 -> BatchNormalization28
+	Relu29 [label=Relu]
+	BatchNormalization28 -> Relu29
+	Conv30 [label=Conv]
+	Relu29 -> Conv30
+	BatchNormalization31 [label=BatchNormalization]
+	Conv30 -> BatchNormalization31
+	Add32 [label=Add]
+	Relu26 -> Add32
+	BatchNormalization31 -> Add32
+	Relu33 [label=Relu]
+	Add32 -> Relu33
+	Conv34 [label=Conv]
+	Relu33 -> Conv34
+	BatchNormalization35 [label=BatchNormalization]
+	Conv34 -> BatchNormalization35
+	Conv36 [label=Conv]
+	Relu33 -> Conv36
+	BatchNormalization37 [label=BatchNormalization]
+	Conv36 -> BatchNormalization37
+	Relu38 [label=Relu]
+	BatchNormalization37 -> Relu38
+	Conv39 [label=Conv]
+	Relu38 -> Conv39
+	BatchNormalization40 [label=BatchNormalization]
+	Conv39 -> BatchNormalization40
+	Add41 [label=Add]
+	BatchNormalization35 -> Add41
+	BatchNormalization40 -> Add41
+	Relu42 [label=Relu]
+	Add41 -> Relu42
+	Conv43 [label=Conv]
+	Relu42 -> Conv43
+	BatchNormalization44 [label=BatchNormalization]
+	Conv43 -> BatchNormalization44
+	Relu45 [label=Relu]
+	BatchNormalization44 -> Relu45
+	Conv46 [label=Conv]
+	Relu45 -> Conv46
+	BatchNormalization47 [label=BatchNormalization]
+	Conv46 -> BatchNormalization47
+	Add48 [label=Add]
+	Relu42 -> Add48
+	BatchNormalization47 -> Add48
+	Relu49 [label=Relu]
+	Add48 -> Relu49
+	Conv50 [label=Conv]
+	Relu49 -> Conv50
+	BatchNormalization51 [label=BatchNormalization]
+	Conv50 -> BatchNormalization51
+	Conv52 [label=Conv]
+	Relu49 -> Conv52
+	BatchNormalization53 [label=BatchNormalization]
+	Conv52 -> BatchNormalization53
+	Relu54 [label=Relu]
+	BatchNormalization53 -> Relu54
+	Conv55 [label=Conv]
+	Relu54 -> Conv55
+	BatchNormalization56 [label=BatchNormalization]
+	Conv55 -> BatchNormalization56
+	Add57 [label=Add]
+	BatchNormalization51 -> Add57
+	BatchNormalization56 -> Add57
+	Relu58 [label=Relu]
+	Add57 -> Relu58
+	Conv59 [label=Conv]
+	Relu58 -> Conv59
+	BatchNormalization60 [label=BatchNormalization]
+	Conv59 -> BatchNormalization60
+	Relu61 [label=Relu]
+	BatchNormalization60 -> Relu61
+	Conv62 [label=Conv]
+	Relu61 -> Conv62
+	BatchNormalization63 [label=BatchNormalization]
+	Conv62 -> BatchNormalization63
+	Add64 [label=Add]
+	Relu58 -> Add64
+	BatchNormalization63 -> Add64
+	Relu65 [label=Relu]
+	Add64 -> Relu65
+	GlobalAveragePool66 [label=GlobalAveragePool]
+	Relu65 -> GlobalAveragePool66
+	Flatten67 [label=Flatten]
+	GlobalAveragePool66 -> Flatten67
+	Gemm68 [label=Gemm]
+	Flatten67 -> Gemm68
+}

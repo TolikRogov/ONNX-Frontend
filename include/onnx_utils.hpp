@@ -15,8 +15,13 @@
 #define PROTOC_CMD_START "mkdir -p " TEMP_DIR " ; protoc --decode=onnx.ModelProto " ONNX_PROTO3 " < "
 #define PROTOC_CMD_END " > " TEMP_FILE
 
+#define DOT_EXTENSION ".dot"
+#define DOT_OUTPUT_EXTENSION "svg"
+#define DOT_GEN(file) ("dot -T" DOT_OUTPUT_EXTENSION " " + file + DOT_EXTENSION " -o " + file + "." DOT_OUTPUT_EXTENSION).c_str()
+
 #define PRINT_EPS 16
-#define PRINT_WIDTH 25
+#define PRINT_WIDTH 26
+#define PRINT_LONG_WIDTH 35
 #define PRINT_LINE(el, cnt) std::string(cnt, el)
 #define PRINT_HEAD(x, sym) \
 	PRINT_LINE(sym, sizeof(x) + PRINT_EPS) << "\n" "\t" x "\n" << PRINT_LINE(sym, sizeof(x) + PRINT_EPS) << "\n"

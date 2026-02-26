@@ -29,6 +29,12 @@ DEF_CMD_(
 )
 
 DEF_CMD_(
+	#ifdef CMD_SET_OPERATOR
+		DEF_CMD_VAL_("color:", operator_.second.color, sTos)
+	#endif
+)
+
+DEF_CMD_(
 	#ifdef CMD_SET_FILL
 		DEF_CMD_VAL_("ir_version:", ir_version, sToi)
 	#endif

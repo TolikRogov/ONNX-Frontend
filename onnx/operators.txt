@@ -3,113 +3,141 @@ opset {
 	operator {
 		op_type: "Conv"
 		since_version: 22
+		color: "#374F73"
 	}
 	operator {
 		op_type: "Sigmoid"
 		since_version: 13
+		color: "#492623"
 	}
 	operator {
 		op_type: "Mul"
 		since_version: 14
+		color: "#303030"
 	}
 	operator {
 		op_type: "Add"
 		since_version: 14
+		color: "#303030"
 	}
 	operator {
 		op_type: "Concat"
 		since_version: 13
+		color: "#52413C"
 	}
 	operator {
 		op_type: "MaxPool"
 		since_version: 22
+		color: "#374F37"
 	}
 	operator {
 		op_type: "Resize"
 		since_version: 19
+		color: "#303030"
 	}
 	operator {
 		op_type: "Reshape"
 		since_version: 25
+		color: "#5F4A45"
 	}
 	operator {
 		op_type: "Transpose"
 		since_version: 25
+		color: "#374F43"
 	}
 	operator {
 		op_type: "Softmax"
 		since_version: 13
+		color: "#492623"
 	}
 	operator {
 		op_type: "Slice"
 		since_version: 13
+		color: "#52413C"
 	}
 	operator {
 		op_type: "Sub"
 		since_version: 14
+		color: "#303030"
 	}
 	operator {
 		op_type: "Div"
 		since_version: 14
+		color: "#303030"
 	}
 	operator {
 		op_type: "Split"
 		since_version: 18
+		color: "#52413C"
 	}
 	operator {
 		op_type: "Shape"
 		since_version: 25
+		color: "#303030"
 	}
 	operator {
 		op_type: "Gather"
 		since_version: 13
+		color: "#374F43"
 	}
 	operator {
 		op_type: "Unsqueeze"
 		since_version: 25
+		color: "#374F43"
 	}
 	operator {
 		op_type: "MatMul"
 		since_version: 13
+		color: "#303030"
 	}
 	operator {
 		op_type: "Cast"
 		since_version: 25
+		color: "#303030"
 	}
 	operator {
 		op_type: "Range"
 		since_version: 11
+		color: "#303030"
 	}
 	operator {
 		op_type: "ConstantOfShape"
 		since_version: 25
+		color: "#303030"
 	}
 	operator {
 		op_type: "Expand"
 		since_version: 13
+		color: "#303030"
 	}
 	operator {
 		op_type: "Relu"
 		since_version: 14
+		color: "#492623"
 	}
 	operator {
 		op_type: "Dropout"
 		since_version: 22
+		color: "#444562"
 	}
 	operator {
 		op_type: "GlobalAveragePool"
 		since_version: 22
+		color: "#374F37"
 	}
 	operator {
 		op_type: "BatchNormalization"
 		since_version: 13
+		color: "#374F43"
 	}
 	operator {
 		op_type: "Flatten"
 		since_version: 25
+		color: "#5F4B45"
 	}
 	operator {
 		op_type: "Gemm"
 		since_version: 13
+		color: "#374F73"
 	}
 }
