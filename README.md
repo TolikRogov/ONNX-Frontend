@@ -1,9 +1,9 @@
 # ONNX-Frontend
 
-![GitHub commit activity](https://img.shields.io/github/commit-activity/t/TolikRogov/ONNXFrontend)
-![GitHub repo size](https://img.shields.io/github/repo-size/TolikRogov/ONNXFrontend)
-![GitHub Repo stars](https://img.shields.io/github/stars/TolikRogov/ONNXFrontend)
-![GitHub top language](https://img.shields.io/github/languages/top/TolikRogov/ONNXFrontend)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/t/TolikRogov/ONNX-Frontend)
+![GitHub repo size](https://img.shields.io/github/repo-size/TolikRogov/ONNX-Frontend)
+![GitHub Repo stars](https://img.shields.io/github/stars/TolikRogov/ONNX-Frontend)
+![GitHub top language](https://img.shields.io/github/languages/top/TolikRogov/ONNX-Frontend)
 
 ## Оглавление
 
@@ -18,6 +18,7 @@
 
 ## Зависимости
 
+Разработка проекта производилась на операционной системе MacOS на архитектуре ARM.
 Для корректной работы инструмента требуется установить следующие библиотеки:
 
 - [Protocol Buffer Compiler](https://protobuf.dev/installation/)
@@ -25,11 +26,11 @@
 
 ## Использование
 
-Для работы данного инструмента необходимо при запуске указать путь до ONNX файла нейронной сети. Произвести установку и запуск можно прописав следующие команды, в этом примере использована нейронная сеть, находящаяся в директории 'onnx/yolov5nu'.
+Для работы данного инструмента необходимо при запуске указать путь до ONNX файла нейронной сети. Произвести установку и запуск можно прописав следующие команды, в этом примере использована нейронная сеть, находящаяся в директории 'onnx/yolov5nu'. Клонирования репозитория может занять продолжительное время в связи с наличием объемных моделей, на которых производилась тестирование инструмента.
 
 ```
-git clone https://github.com/TolikRogov/ONNXFrontend
-cd ONNXFrontend
+git clone https://github.com/TolikRogov/ONNX-Frontend
+cd ONNX-Frontend
 make run-release ARGS=onnx/yolov5nu/yolov5nu.onnx
 ```
 
